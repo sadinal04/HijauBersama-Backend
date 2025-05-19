@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 import User from "../models/User";
 
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
@@ -41,4 +41,20 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getUserNotifications: RequestHandler = async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    const user = await User.findById(userId).select("notifications");
+    if (!user) {
+      res.status(404).json({ message: "User tidak ditemukan" });
+      return;
+    }
+
+    res.json(user.notifications); // kirim response tapi **tidak return**
+  } catch (error) {
+    res.status(500).json({ message: "Server error" }); // kirim error tapi **tidak return**
+  }
+};
+
 

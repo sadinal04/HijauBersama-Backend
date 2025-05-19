@@ -5,6 +5,10 @@ import connectDB from "./utils/db";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import forumRoutes from "./routes/forumRoutes";
+import adminAuthRoutes from "./routes/adminAuthRoutes";
+import challengeRoutes from "./routes/challengeRoutes";
+import publicChallengeRoutes from "./routes/publicChallengeRoutes";
+import submissionRoutes from "./routes/submissionRoutes";
 
 dotenv.config();
 
@@ -21,6 +25,10 @@ connectDB(process.env.MONGO_URI!);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/forum", forumRoutes);
+app.use("/api/admin/challenges", challengeRoutes);
+app.use("/api/challenges", publicChallengeRoutes);
+app.use("/api/submissions", submissionRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
