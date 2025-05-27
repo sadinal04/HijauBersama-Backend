@@ -1,5 +1,6 @@
+import mongoose from "mongoose";
 import { Request, RequestHandler, Response } from "express";
-import User from "../models/User";
+import User, { INotification, IUser } from "../models/User";
 
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -54,6 +55,34 @@ export const getUserNotifications: RequestHandler = async (req, res) => {
     res.json(user.notifications); // kirim response tapi **tidak return**
   } catch (error) {
     res.status(500).json({ message: "Server error" }); // kirim error tapi **tidak return**
+  }
+};
+
+export const markNotificationRead: RequestHandler = async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    const notificationId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User tidak ditemukan" });
+      return; // cukup return tanpa return res.json(...)
+    }
+
+    const notification = user.notifications.id(notificationId);
+    if (!notification) {
+      res.status(404).json({ message: "Notifikasi tidak ditemukan" });
+      return;
+    }
+
+    notification.read = true;
+    await user.save();
+
+    res.json({ message: "Notifikasi ditandai sudah dibaca" });
+    return; // kosongkan return, jangan return res.json
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+    return;
   }
 };
 

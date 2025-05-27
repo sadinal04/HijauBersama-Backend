@@ -13,12 +13,12 @@ export interface IUser extends Document {
   password: string;
   bio?: string;
   profilePhoto?: string;
-  notifications: INotification[];
+  notifications: mongoose.Types.DocumentArray<INotification>;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const NotificationSchema = new Schema<INotification>({
+const NotificationSchema = new Schema({
   message: { type: String, required: true },
   link: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },

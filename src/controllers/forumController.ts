@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Post from "../models/Post";
+import User from "../models/User";  // pastikan ada model User
+import { AuthRequest } from "../middleware/auth";
 
 export const getPosts = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -18,7 +20,9 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
     })
       .sort({ waktu: -1 })
       .skip((pageNum - 1) * limitNum)
-      .limit(limitNum);
+      .limit(limitNum)
+      .populate("author", "name")          // populate author field dengan nama user
+      .populate("replies.author", "name"); // populate author di replies
 
     const total = await Post.countDocuments({
       $or: [
@@ -30,13 +34,16 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
 
     res.json({ posts, total, page: pageNum, limit: limitNum });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-export const addPost = async (req: Request, res: Response): Promise<void> => {
+export const addPost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { judul, isi, author } = req.body;
+    const { judul, isi } = req.body;
+    const author = req.userId;
+
     if (!judul || !isi || !author) {
       res.status(400).json({ message: "Data tidak lengkap" });
       return;
@@ -45,16 +52,21 @@ export const addPost = async (req: Request, res: Response): Promise<void> => {
     const newPost = new Post({ judul, isi, author });
     await newPost.save();
 
-    res.status(201).json(newPost);
+    // Populate author sebelum kirim response
+    const populatedPost = await newPost.populate("author", "name");
+
+    res.status(201).json(populatedPost);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-export const addReply = async (req: Request, res: Response): Promise<void> => {
+export const addReply = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { postId } = req.params;
-    const { isi, author } = req.body;
+    const { isi } = req.body;
+    const author = req.userId;
 
     if (!isi || !author) {
       res.status(400).json({ message: "Data tidak lengkap" });
@@ -76,9 +88,12 @@ export const addReply = async (req: Request, res: Response): Promise<void> => {
     post.replies.push(newReply);
     await post.save();
 
-    res.status(201).json(post);
+    // Populate author dan replies.author sebelum kirim response
+    const populatedPost = await (await post.populate("author", "name")).populate("replies.author", "name");
+
+    res.status(201).json(populatedPost);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
