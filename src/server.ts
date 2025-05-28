@@ -12,6 +12,7 @@ import challengeRoutes from "./routes/challengeRoutes";
 import publicChallengeRoutes from "./routes/publicChallengeRoutes";
 import submissionRoutes from "./routes/submissionRoutes";
 import galleryRoutes from "./routes/galleryRoutes";
+import edukasiRoutes from "./routes/edukasiRoutes";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,5 +41,6 @@ app.use("/api/admin/challenges", challengeRoutes);
 app.use("/api/challenges", publicChallengeRoutes);
 app.use("/api/submissions", submissionRoutes);
 app.use("/api/gallery", galleryRoutes);
+app.use("/api/edukasi", edukasiRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
