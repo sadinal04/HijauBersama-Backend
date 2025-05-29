@@ -43,4 +43,9 @@ app.use("/api/submissions", submissionRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/edukasi", edukasiRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Backend HijauBersama is running!");
+});
+
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
